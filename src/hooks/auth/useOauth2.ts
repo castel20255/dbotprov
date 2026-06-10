@@ -94,9 +94,15 @@ export const useOauth2 = ({
         localStorage.removeItem('client.country');
         localStorage.removeItem('callback_token');
 
-        // Clear sessionStorage
+        // Clear sessionStorage (preserve OAuth state)
         if (typeof window !== 'undefined' && window.sessionStorage) {
-            sessionStorage.clear();
+            const preserveKeys = ['oauth_csrf_token', 'oauth_csrf_token_timestamp', 'oauth_code_verifier', 'oauth_code_verifier_timestamp', 'query_param_currency', 'redirect_url'];
+            for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                const key = sessionStorage.key(i);
+                if (key && !preserveKeys.includes(key)) {
+                    sessionStorage.removeItem(key);
+                }
+            }
         }
 
         Analytics.reset();

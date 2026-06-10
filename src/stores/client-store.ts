@@ -553,9 +553,15 @@ export default class ClientStore {
         // Clear balance swap state
         resetBalanceSwap();
 
-        // Clear sessionStorage (including transaction and journal caches)
+        // Clear sessionStorage (preserve OAuth state)
         if (typeof window !== 'undefined' && window.sessionStorage) {
-            sessionStorage.clear();
+            const preserveKeys = ['oauth_csrf_token', 'oauth_csrf_token_timestamp', 'oauth_code_verifier', 'oauth_code_verifier_timestamp', 'query_param_currency', 'redirect_url'];
+            for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                const key = sessionStorage.key(i);
+                if (key && !preserveKeys.includes(key)) {
+                    sessionStorage.removeItem(key);
+                }
+            }
         }
 
         removeCookies('client_information');

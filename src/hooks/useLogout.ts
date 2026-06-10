@@ -34,8 +34,25 @@ export const useLogout = () => {
                 ErrorLogger.error('Logout', 'Failed to clear auth storage', storageError);
                 // Last resort: if targeted clearing fails, clear all storage
                 try {
-                    sessionStorage.clear();
-                    localStorage.clear();
+                    // Preserve OAuth state even in last resort
+                    const preserveSessionKeys = ['oauth_csrf_token', 'oauth_csrf_token_timestamp', 'oauth_code_verifier', 'oauth_code_verifier_timestamp', 'query_param_currency', 'redirect_url'];
+                    const preserveLocalKeys = ['configured_client_id', 'configured_app_id', 'config.app_id', 'config.server_url', 'bot_version'];
+                    
+                    // Clear sessionStorage except preserve keys
+                    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                        const key = sessionStorage.key(i);
+                        if (key && !preserveSessionKeys.includes(key)) {
+                            sessionStorage.removeItem(key);
+                        }
+                    }
+                    
+                    // Clear localStorage except preserve keys
+                    for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const key = localStorage.key(i);
+                        if (key && !preserveLocalKeys.includes(key)) {
+                            localStorage.removeItem(key);
+                        }
+                    }
                 } catch (finalError) {
                     ErrorLogger.error('Logout', 'Failed to clear all storage', finalError);
                 }
