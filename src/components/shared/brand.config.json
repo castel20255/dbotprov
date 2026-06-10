@@ -84,7 +84,7 @@
         "redirect_uri": "https://dbotprov.vercel.app/callback",
         "client_id": "33w5ozJJO6phuHCbfXpwH",
         "app_id": "113830",
-        "scope": "trade+account_manage"
+        "scope": "trade"
     },
     "platform": {
         "hostname": {

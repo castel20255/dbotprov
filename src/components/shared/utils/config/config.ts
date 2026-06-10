@@ -143,7 +143,7 @@ const getOAuthScope = () =>
     process.env.VITE_SCOPE ||
     process.env.VITE_OAUTH_SCOPE ||
     brandConfig.oauth?.scope ||
-    'trade+account_manage';
+    'trade';
 
 const OAUTH_STATE_KEY = 'oauth_csrf_token';
 const OAUTH_STATE_TIMESTAMP_KEY = 'oauth_csrf_token_timestamp';
