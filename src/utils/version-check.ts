@@ -2,20 +2,53 @@ import Cookies from 'js-cookie';
 import { BOT_VERSION_CONFIG } from '@/constants/bot-version';
 
 /**
- * Clears all localStorage data except for the bot_version
+ * Clears localStorage data except for bot_version and OAuth-related items
  */
 const clearLocalStorage = (): void => {
     try {
-        // Get the current bot_version before clearing
+        // Get the current bot_version and OAuth-related items before clearing
         const currentBotVersion = localStorage.getItem(BOT_VERSION_CONFIG.STORAGE_KEY);
-
+        const oauthKeys: string[] = [];
+        
+        // First, collect all keys that are OAuth-related
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('oauth') || key.includes('auth'))) {
+                oauthKeys.push(key);
+            }
+        }
+        
+        // Also collect specific keys we want to preserve
+        const preserveKeys = [
+            'oauth_csrf_token',
+            'oauth_csrf_token_timestamp',
+            'oauth_code_verifier',
+            'oauth_code_verifier_timestamp',
+            'auth_info',
+            'configured_client_id',
+            'configured_app_id',
+            'config.app_id',
+            'config.server_url'
+        ];
+        
+        // Collect values for all keys we want to preserve
+        const preserveValues: Record<string, string | null> = {};
+        [...oauthKeys, ...preserveKeys].forEach(key => {
+            preserveValues[key] = localStorage.getItem(key);
+        });
+        
         // Clear all localStorage
         localStorage.clear();
-
-        // Restore the bot_version if it existed
+        
+        // Restore the bot_version and preserved items
         if (currentBotVersion) {
             localStorage.setItem(BOT_VERSION_CONFIG.STORAGE_KEY, currentBotVersion);
         }
+        Object.entries(preserveValues).forEach(([key, value]) => {
+            if (value !== null) {
+                localStorage.setItem(key, value);
+            }
+        });
     } catch (error) {
         console.error('Error clearing localStorage:', error);
     }

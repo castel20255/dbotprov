@@ -21,8 +21,8 @@ export const useInvalidTokenHandler = (): { unregisterHandler: () => void } => {
             localStorage.removeItem('accountsList');
             localStorage.removeItem('clientAccounts');
 
-            // Clear sessionStorage completely to remove any stale auth data
-            sessionStorage.clear();
+            // DO NOT clear sessionStorage completely - preserve OAuth state
+            // Instead, only clear specific items
 
             // Redirect to OAuth login instead of reload to get fresh authentication
             const { generateOAuthURL } = await import('@/components/shared');
