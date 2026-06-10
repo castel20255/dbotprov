@@ -101,10 +101,12 @@ function App() {
 
     // Process the authorization code when OAuth callback is valid
     React.useEffect(() => {
+        console.log('[App] useOAuthCallback returned:', { isProcessing, isValid, params, error });
         if (!isProcessing && isValid && params.code) {
             // Exchange authorization code for access token
             OAuthTokenExchangeService.exchangeCodeForToken(params.code)
                 .then(response => {
+                    console.log('[App] Token exchange response:', response);
                     if (response.access_token) {
                         cleanupURL();
                     } else if (response.error) {

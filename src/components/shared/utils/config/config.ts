@@ -232,28 +232,38 @@ export const clearOAuthSession = () => {
 };
 
 export const validateCSRFToken = (token: string): boolean => {
+    console.log('[OAuth] Validating CSRF token...');
     const storedToken = sessionStorage.getItem(OAUTH_STATE_KEY);
     const timestamp = sessionStorage.getItem(OAUTH_STATE_TIMESTAMP_KEY);
 
+    console.log('[OAuth] Token from callback:', token);
+    console.log('[OAuth] Stored token:', storedToken);
+    console.log('[OAuth] Stored timestamp:', timestamp);
+
     if (!storedToken || !timestamp) {
+        console.error('[OAuth] CSRF validation failed: stored token or timestamp missing');
         return false;
     }
 
     if (storedToken !== token) {
+        console.error('[OAuth] CSRF validation failed: token mismatch');
         return false;
     }
 
     const timestamp_value = Number(timestamp);
     if (!Number.isFinite(timestamp_value)) {
+        console.error('[OAuth] CSRF validation failed: invalid timestamp');
         clearOAuthSession();
         return false;
     }
 
     if (Date.now() - timestamp_value > OAUTH_TOKEN_EXPIRY_MS) {
+        console.error('[OAuth] CSRF validation failed: token expired');
         clearOAuthSession();
         return false;
     }
 
+    console.log('[OAuth] CSRF validation successful!');
     return true;
 };
 
@@ -469,6 +479,8 @@ export const generateOAuthURL = async (prompt?: string) => {
         sessionStorage.getItem('query_param_currency') ||
         '';
 
+    console.log('[OAuth] Generating OAuth URL...');
+
     const oauthBaseUrl = getOAuthBaseUrl().replace(/\/$/, '');
     const oauthAuthPath = getOAuthAuthorizationPath();
     const original_url = new URL(`${oauthBaseUrl}${oauthAuthPath}`);
@@ -483,11 +495,15 @@ export const generateOAuthURL = async (prompt?: string) => {
     sessionStorage.setItem(OAUTH_CODE_VERIFIER_KEY, code_verifier);
     sessionStorage.setItem(OAUTH_CODE_VERIFIER_TIMESTAMP_KEY, timestamp);
 
+    console.log('[OAuth] OAuth state set:', { state, timestamp });
+
     original_url.searchParams.set('response_type', 'code');
     if (configured_client_id) {
         original_url.searchParams.set('client_id', configured_client_id);
     }
-    original_url.searchParams.set('redirect_uri', getAuthRedirectUri());
+    const redirect_uri = getAuthRedirectUri();
+    console.log('[OAuth] Using redirect URI:', redirect_uri);
+    original_url.searchParams.set('redirect_uri', redirect_uri);
     original_url.searchParams.set('scope', getOAuthScope());
     original_url.searchParams.set('state', state);
     original_url.searchParams.set('code_challenge_method', 'S256');
@@ -507,5 +523,6 @@ export const generateOAuthURL = async (prompt?: string) => {
         original_url.searchParams.set('prompt', prompt);
     }
 
+    console.log('[OAuth] Generated OAuth URL:', original_url.toString());
     return original_url.toString();
 };

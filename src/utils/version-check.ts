@@ -28,7 +28,14 @@ const clearLocalStorage = (): void => {
             'configured_client_id',
             'configured_app_id',
             'config.app_id',
-            'config.server_url'
+            'config.server_url',
+            'accountsList',
+            'clientAccounts',
+            'authToken',
+            'active_loginid',
+            'account_type',
+            'client.country',
+            'session_token'
         ];
         
         // Collect values for all keys we want to preserve
@@ -55,21 +62,24 @@ const clearLocalStorage = (): void => {
 };
 
 /**
- * Clears all cookies for the current domain and parent domains
+ * Clears cookies except for logged_state and OAuth-related ones
  */
 const clearCookies = (): void => {
     try {
         // Get all cookies
         const cookies = document.cookie.split(';');
 
-        // Clear each cookie for different domain variations
+        // Preserve these cookies
+        const preserveCookieNames = ['logged_state'];
+
+        // Clear each cookie except preserved ones for different domain variations
         const domains = [`.${document.domain.split('.').slice(-2).join('.')}`, `.${document.domain}`, document.domain];
 
         const paths = ['/', window.location.pathname.split('/', 2)[1] || ''];
 
         cookies.forEach(cookie => {
             const cookieName = cookie.split('=')[0].trim();
-            if (cookieName) {
+            if (cookieName && !preserveCookieNames.includes(cookieName)) {
                 // Remove cookie for different domain and path combinations
                 domains.forEach(domain => {
                     paths.forEach(path => {
