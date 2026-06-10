@@ -24,52 +24,20 @@ export const BrandLogo = ({
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className={className}
-            aria-label="Brand Logo Placeholder"
+            aria-label="dbotprov Logo"
         >
-            {/* [AI] ⚠️ PLACEHOLDER - Replace with your brand's SVG */}
-
-            {/* Dashed border box to indicate placeholder */}
-            <rect
-                x="1"
-                y="1"
-                width="118"
-                height="30"
-                rx="4"
-                opacity="0.3"
-                fill="none"
-            />
-
-            {/* Image icon placeholder */}
-            <g transform="translate(8, 8)">
-                {/* Picture frame icon */}
-                <rect x="0" y="0" width="16" height="16" rx="2" stroke={fill} strokeWidth="1.5" fill="none" opacity="0.4" />
-
-                {/* Mountain/landscape icon inside */}
-                <path
-                    d="M2 12L6 8L9 11L14 6V14H2V12Z"
-                    fill={fill}
-                    opacity="0.3"
-                />
-
-                {/* Sun/circle in corner */}
-                <circle cx="11" cy="5" r="1.5" fill={fill} opacity="0.3" />
-            </g>
-
-            {/* "YOUR LOGO" text */}
+            {/* dbotprov text logo */}
             <text
-                x="30"
-                y="20"
+                x="0"
+                y="22"
                 fontFamily="system-ui, -apple-system, sans-serif"
-                fontSize="11"
-                fontWeight="500"
+                fontSize="20"
+                fontWeight="600"
                 fill={fill}
-                opacity="0.5"
                 letterSpacing="0.5"
             >
-                BRAND LOGO
+                dbotprov
             </text>
-
-            {/* [/AI] */}
         </svg>
     );
 };

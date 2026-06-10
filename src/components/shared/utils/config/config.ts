@@ -263,6 +263,13 @@ export const clearCSRFToken = () => {
 };
 
 export const getAuthRedirectUri = () => {
+    // If we're on localhost, use the current origin, even if a configured redirect URI exists
+    if (isLocal()) {
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        return `${protocol}//${host}/`;
+    }
+
     const configuredRedirectUri =
         process.env.DERIV_REDIRECT_URI ||
         process.env.DERIV_OAUTH_REDIRECT_URI ||
