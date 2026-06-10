@@ -263,11 +263,11 @@ export const clearCSRFToken = () => {
 };
 
 export const getAuthRedirectUri = () => {
-    // If we're on localhost, use the current origin, even if a configured redirect URI exists
+    // If we're on localhost, use the current origin with /callback
     if (isLocal()) {
         const protocol = window.location.protocol;
         const host = window.location.host;
-        return `${protocol}//${host}/`;
+        return `${protocol}//${host}/callback`;
     }
 
     const configuredRedirectUri =
@@ -290,10 +290,10 @@ export const getAuthRedirectUri = () => {
     const isProd = isProduction();
 
     if (isProd) {
-        return `https://${brandConfig.brand_domain}/`;
+        return `https://${brandConfig.brand_domain}/callback`;
     }
 
-    return `${protocol}//${host}/`;
+    return `${protocol}//${host}/callback`;
 };
 
 export const isProduction = () => {
