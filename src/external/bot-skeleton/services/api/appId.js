@@ -83,7 +83,7 @@ export const getLoginId = () => {
     return null;
 };
 
-import OAuthTokenExchangeService from '@/services/oauth-token-exchange.service';
+import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 
 export const V2GetActiveToken = () => {
