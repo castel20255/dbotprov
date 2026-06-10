@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
-import { generateOAuthURL, getAuthRedirectUri } from '@/components/shared';
+import { getAuthRedirectUri } from '@/components/shared';
 import RootStore from '@/stores/root-store';
 import { Analytics } from '@deriv-com/analytics';
-import { OAuth2Logout } from '@deriv-com/auth-client';
+import { OAuth2Logout, requestOidcAuthentication } from '@deriv-com/auth-client';
 
 /**
  * Provides an object with properties: `oAuthLogout`, `retriggerOAuth2Login`, and `isSingleLoggingIn`.
@@ -133,7 +133,13 @@ export const useOauth2 = ({
     };
     const retriggerOAuth2Login = async () => {
         try {
-            window.location.replace(await generateOAuthURL());
+            const preferred_account = sessionStorage.getItem('query_param_currency') || '';
+            await requestOidcAuthentication({
+                redirectCallbackUri: getAuthRedirectUri(),
+                state: {
+                    account: preferred_account
+                }
+            });
         } catch (error) {
             console.error('Failed to retrigger OAuth login', error);
         }

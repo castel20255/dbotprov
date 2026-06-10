@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { generateOAuthURL } from '@/components/shared';
+import { getAuthRedirectUri } from '@/components/shared';
 import Button from '@/components/shared_ui/button';
 import useActiveAccount from '@/hooks/api/account/useActiveAccount';
 import { useApiBase } from '@/hooks/useApiBase';
@@ -10,6 +10,7 @@ import { useStore } from '@/hooks/useStore';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { Localize } from '@deriv-com/translations';
 import { Header, useDevice, Wrapper } from '@deriv-com/ui';
+import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { AppLogo } from '../app-logo';
 import AccountSwitcher from './account-switcher';
 import MenuItems from './menu-items';
@@ -86,13 +87,13 @@ const AppHeader = observer(() => {
     const handleSignup = useCallback(async () => {
         try {
             setIsAuthorizing(true);
-            const oauthUrl = await generateOAuthURL('registration');
-            if (oauthUrl) {
-                window.location.replace(oauthUrl);
-            } else {
-                console.error('Failed to generate OAuth URL for signup');
-                setIsAuthorizing(false);
-            }
+            await requestOidcAuthentication({
+                redirectCallbackUri: getAuthRedirectUri(),
+                state: {
+                    account: sessionStorage.getItem('query_param_currency') || '',
+                    prompt: 'registration'
+                }
+            });
         } catch (error) {
             console.error('Signup redirection failed:', error);
             setIsAuthorizing(false);
@@ -104,16 +105,12 @@ const AppHeader = observer(() => {
             // Set authorizing state immediately when login is clicked
             setIsAuthorizing(true);
 
-            // Generate OAuth URL with CSRF token and PKCE parameters
-            const oauthUrl = await generateOAuthURL();
-
-            if (oauthUrl) {
-                // Redirect to OAuth URL
-                window.location.replace(oauthUrl);
-            } else {
-                console.error('Failed to generate OAuth URL');
-                setIsAuthorizing(false);
-            }
+            await requestOidcAuthentication({
+                redirectCallbackUri: getAuthRedirectUri(),
+                state: {
+                    account: sessionStorage.getItem('query_param_currency') || ''
+                }
+            });
         } catch (error) {
             console.error('Login redirection failed:', error);
             // Reset authorizing state if redirection fails

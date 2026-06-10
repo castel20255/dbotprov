@@ -4,7 +4,8 @@ import Cookies from 'js-cookie';
 import { Outlet } from 'react-router-dom';
 import { api_base } from '@/external/bot-skeleton';
 import useTMB from '@/hooks/useTMB';
-import { generateOAuthURL } from '@/components/shared';
+import { getAuthRedirectUri } from '@/components/shared';
+import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { useDevice } from '@deriv-com/ui';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '../shared';
 import Footer from './footer';
@@ -159,7 +160,12 @@ const Layout = () => {
                     }
                     try {
                         sessionStorage.setItem('query_param_currency', query_param_currency);
-                        window.location.replace(await generateOAuthURL());
+                        await requestOidcAuthentication({
+                            redirectCallbackUri: getAuthRedirectUri(),
+                            state: {
+                                account: query_param_currency
+                            }
+                        });
                     } catch (err) {
                         setIsAuthenticating(false);
                         console.error('Authentication redirect failed:', err);

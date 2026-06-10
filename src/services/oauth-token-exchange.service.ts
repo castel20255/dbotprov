@@ -203,86 +203,10 @@ export class OAuthTokenExchangeService {
 
                 // Store as JSON string
                 sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
-
-                // Immediately fetch accounts and initialize WebSocket after token exchange
-                try {
-                    const { DerivWSAccountsService } = await import('./derivws-accounts.service');
-
-                    // Fetch accounts and store in sessionStorage
-                    const accounts = await DerivWSAccountsService.fetchAccountsList(data.access_token);
-
-                    if (accounts && accounts.length > 0) {
-                        // Store accounts
-                        DerivWSAccountsService.storeAccounts(accounts);
-
-                        const accountsList: Record<string, string> = {};
-                        const clientAccounts: Record<
-                            string,
-                            {
-                                loginid: string;
-                                token: string;
-                                currency: string;
-                                account_type?: string;
-                                balance?: string;
-                            }
-                        > = {};
-
-                        accounts.forEach(account => {
-                            const loginid = account.account_id || account.loginid;
-                            if (!loginid) return;
-
-                            accountsList[loginid] = data.access_token as string;
-                            clientAccounts[loginid] = {
-                                loginid,
-                                token: data.access_token as string,
-                                currency: account.currency || '',
-                                account_type: account.account_type || (account.is_virtual ? 'demo' : 'real'),
-                                balance: account.balance ?? '0',
-                            };
-                        });
-
-                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
-                        localStorage.setItem('clientAccounts', JSON.stringify(clientAccounts));
-
-                        // Set the first account as active in localStorage
-                        const firstAccount = accounts[0];
-                        const activeLoginId = firstAccount.account_id || firstAccount.loginid;
-                        if (activeLoginId) {
-                            localStorage.setItem('active_loginid', activeLoginId);
-                            const isDemo = activeLoginId.startsWith('VRT') || activeLoginId.startsWith('VRTC');
-                            localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
-
-                            ErrorLogger.info('OAuth', 'Accounts fetched and stored', {
-                                loginid: activeLoginId,
-                            });
-                        }
-
-                        // Trigger WebSocket initialization by reloading or reinitializing api_base
-                        // The api_base will pick up the active_loginid and authorize
-                        const { api_base } = await import('@/external/bot-skeleton');
-                        await api_base.init(true); // Force new connection with the account
-                    } else {
-                        // No accounts returned - this is an error condition
-                        ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
-                        // Clear auth info when no accounts are available to prevent invalid state
-                        this.clearAuthInfo();
-                        return {
-                            error: 'no_accounts',
-                            error_description: 'No accounts available after successful authentication',
-                        };
-                    }
-                } catch (error) {
-                    ErrorLogger.error('OAuth', 'Error fetching accounts after token exchange', error);
-                    // Clear stored auth info to prevent user from being stuck in invalid auth state
-                    // This allows retry without manual sessionStorage clearing
-                    this.clearAuthInfo();
-                    // Return error status to caller for UI feedback
-                    return {
-                        error: 'account_fetch_failed',
-                        error_description:
-                            error instanceof Error ? error.message : 'Failed to fetch accounts after authentication',
-                    };
-                }
+                
+                ErrorLogger.info('OAuth', 'Token exchange successful', {
+                    expires_at: authInfo.expires_at,
+                });
             }
 
             return data;

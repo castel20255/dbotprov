@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
 import { ErrorLogger } from '@/utils/error-logger';
+import { requestOidcAuthentication } from '@deriv-com/auth-client';
+import { getAuthRedirectUri } from '@/components/shared';
 
 /**
  * Hook to handle invalid token events by clearing auth data and redirecting to OAuth login
@@ -25,17 +27,9 @@ export const useInvalidTokenHandler = (): { unregisterHandler: () => void } => {
             // Instead, only clear specific items
 
             // Redirect to OAuth login instead of reload to get fresh authentication
-            const { generateOAuthURL } = await import('@/components/shared');
-            const oauthUrl = await generateOAuthURL();
-
-            if (oauthUrl) {
-                // Use replace to prevent back button from returning to invalid state
-                window.location.replace(oauthUrl);
-            } else {
-                // Fallback: reload if OAuth URL generation fails
-                ErrorLogger.error('InvalidToken', 'Failed to generate OAuth URL, falling back to reload');
-                window.location.reload();
-            }
+            await requestOidcAuthentication({
+                redirectCallbackUri: getAuthRedirectUri()
+            });
         } catch (error) {
             ErrorLogger.error('InvalidToken', 'Error handling invalid token', error);
             // Last resort: reload the page
