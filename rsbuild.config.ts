@@ -45,6 +45,10 @@ export default defineConfig({
                 GROWTHBOOK_DECRYPTION_KEY: JSON.stringify(process.env.GROWTHBOOK_DECRYPTION_KEY),
                 APP_ID: JSON.stringify(process.env.APP_ID),
                 CLIENT_ID: JSON.stringify(process.env.CLIENT_ID),
+                OAUTH_REDIRECT_URI: JSON.stringify(process.env.OAUTH_REDIRECT_URI),
+                DERIV_REDIRECT_URI: JSON.stringify(process.env.DERIV_REDIRECT_URI),
+                DERIV_OAUTH_REDIRECT_URI: JSON.stringify(process.env.DERIV_OAUTH_REDIRECT_URI),
+                REDIRECT_URI: JSON.stringify(process.env.REDIRECT_URI),
             },
         },
         alias: {
