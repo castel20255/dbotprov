@@ -19,6 +19,7 @@ cert.pem
 
 .env
 .env.*
+!.env.example
 *.env
 
 *.secret
